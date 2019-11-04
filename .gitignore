@@ -1,6 +1,7 @@
 # History files
 .Rhistory
 .Rapp.history
+.rstudio/
 
 # Session Data files
 .RData
