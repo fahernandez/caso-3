@@ -8,11 +8,13 @@ library(RColorBrewer)
 
 
 # Read data
+#setwd("C:/Users/abrenes/Documents/Github/caso-3")
 data<- read.spss("./data/caso3.sav", to.data.frame=TRUE, use.value.labels = TRUE)
 attr(data, "variable.labels")
 summary(data)
 names(data)
 view(data)
+data$SPr1
 
 data<-as_tibble(data)
 palett<-"Dark2"
@@ -43,7 +45,8 @@ for (i in 10:17){
 }
 head(data[,10:17])
 
-
+levels_COMP = levels(data$COMP1)
+data$CALCCSS11
 ################ Preferencia a servicios médicos
 data %>% 
   count(Preferencia)  %>% 
