@@ -28,15 +28,15 @@ data<-data %>%
              TRUE ~ as.character(Preferencia)
            ))
 
-#data[,2:9] = apply(data[,2:9], MARGIN = 2, FUN = as.numeric)
 ## Access data
 levels_ACC = levels(data$ACC1)
 for (i in 2:9){
   data[,i] = as.numeric(data[,i])
 }
+head(data[,2:9])
 
 
-## COnfidence data
+## Confidence data
 levels_CON = levels(data$CON8)
 for (i in 10:17){
   data[,i] = as.numeric(data[,i])
