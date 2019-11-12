@@ -9,6 +9,7 @@ library(RColorBrewer)
 
 # Read data
 #setwd("C:/Users/abrenes/Documents/Github/caso-3")
+#setwd("C:/Users/Anibal/Documents/Github/caso-3")
 data<- read.spss("./data/caso3.sav", to.data.frame=TRUE, use.value.labels = TRUE)
 attr(data, "variable.labels")
 summary(data)
