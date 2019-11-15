@@ -15,13 +15,211 @@ attr(data, "variable.labels")
 summary(data)
 names(data)
 view(data)
-data$SPr1
 
-data<-as_tibble(data)
 palett<-"Dark2"
 fuente<-"Fuente: Encuesta sobre preferencia de servicios médicos, 2012"
 
 ################# Limpieza y transformación de data
+## NA values van a ser convertidos a zero al ser pocos valores (< 3%)
+
+
+## Acceso a servicios de salud
+levels(data$ACC2)
+data$indexAccess = rep(0, nrow(data))
+head(data[,2:9])
+for (i in 2:9){
+  for(j in 1:nrow(data)) {
+    if (is.na(data[j,i])) {
+      data$indexAccess[j] = data$indexAccess[j] + 0
+      
+    }
+    else if (data[j,i] == "Muy dificil") {
+       data$indexAccess[j] = data$indexAccess[j] + 1
+    }  
+    else if (data[j,i] == "Díficil") {
+      data$indexAccess[j] = data$indexAccess[j] + 2
+    }  
+    else if (data[j,i] == "Regular") {
+      data$indexAccess[j] = data$indexAccess[j] + 3
+    }  
+    else if (data[j,i] == "Fácil") {
+      data$indexAccess[j] = data$indexAccess[j] + 4
+    } 
+    else if (data[j,i] == "Muy fácil") {
+      data$indexAccess[j] = data$indexAccess[j] + 5
+    } else {
+      print(data[j,i])
+    }
+  }
+}
+
+minV<-min(data$indexAccess)
+maxV<-max(data$indexAccess)
+data$indexAccess<-sapply(data$indexAccess, function(x) {
+  return (((x - minV)/(maxV-minV))*100)
+})
+
+
+## Confianza en los servicios de salud
+levels(data$CON8)
+data$indexConfidence = rep(0, nrow(data))
+head(data[,10:17])
+for (i in 10:17){
+  for(j in 1:nrow(data)) {
+    if (is.na(data[j,i])) {
+      data$indexConfidence[j] = data$indexConfidence[j] + 0
+      
+    }
+    else if (data[j,i] == "Ninguna") {
+      data$indexConfidence[j] = data$indexConfidence[j] + 1
+    }  
+    else if (data[j,i] == "Poca") {
+      data$indexConfidence[j] = data$indexConfidence[j] + 2
+    }  
+    else if (data[j,i] == "Regular") {
+      data$indexConfidence[j] = data$indexConfidence[j] + 3
+    }  
+    else if (data[j,i] == "Alguna") {
+      data$indexConfidence[j] = data$indexConfidence[j] + 4
+    } 
+    else if (data[j,i] == "Mucha") {
+      data$indexConfidence[j] = data$indexConfidence[j] + 5
+    } else {
+      print(data[j,i])
+    }
+  }
+}
+
+minV<-min(data$indexConfidence)
+maxV<-max(data$indexConfidence)
+data$indexConfidence<-sapply(data$indexConfidence, function(x) {
+  return (((x - minV)/(maxV-minV))*100)
+})
+
+
+# Calificación de la  CCSS en servicios de salud
+data$indexScoreCCSS = rep(0, nrow(data))
+head(data[,26:36])
+for (i in 26:36){
+  for(j in 1:nrow(data)) {
+    if (is.na(data[j,i])) {
+      data$indexScoreCCSS[j] = data$indexScoreCCSS[j] + 0
+    } else {
+      data$indexScoreCCSS[j] = data$indexScoreCCSS[j] + as.numeric(data[j,i])
+    }
+  }
+}
+
+minV<-min(data$indexScoreCCSS)
+maxV<-max(data$indexScoreCCSS)
+data$indexScoreCCSS<-sapply(data$indexScoreCCSS, function(x) {
+  return (((x - minV)/(maxV-minV))*100)
+})
+
+
+# Uso de servicios de salud privados
+data$indexPrivateUse = rep(0, nrow(data))
+head(data[,38:43])
+for (i in 38:43) {
+  for(j in 1:nrow(data)) {
+    if (is.na(data[j,i])) {
+      data$indexPrivateUse[j] = data$indexPrivateUse[j] + 0
+    }
+    else if (data[j,i] == "NS/NR") {
+      data$indexPrivateUse[j] = data$indexPrivateUse[j] + 1
+    }
+    else if (data[j,i] == "NO") {
+      data$indexPrivateUse[j] = data$indexPrivateUse[j] + 1
+    }  
+    else if (data[j,i] == "No") {
+      data$indexPrivateUse[j] = data$indexPrivateUse[j] + 1
+    } 
+    else if (data[j,i] == "Sí") {
+      data$indexPrivateUse[j] = data$indexPrivateUse[j] + 2
+    } 
+    else if (data[j,i] == "Si") {
+      data$indexPrivateUse[j] = data$indexPrivateUse[j] + 2
+    } else {
+      print(data[j,i])
+    }
+  }
+}
+
+minV<-min(data$indexPrivateUse)
+maxV<-max(data$indexPrivateUse)
+data$indexPrivateUse<-sapply(data$indexPrivateUse, function(x) {
+  return (((x - minV)/(maxV-minV))*100)
+})
+
+# Disposición en usar la clínica
+data$indexDispositionClinic = rep(0, nrow(data))
+head(data[,44:51])
+for (i in 44:51) {
+  for(j in 1:nrow(data)) {
+    if (is.na(data[j,i])) {
+      data$indexDispositionClinic[j] = data$indexDispositionClinic[j] + 0
+    }
+    else if (data[j,i] == "NS/NR") {
+      data$indexDispositionClinic[j] = data$indexDispositionClinic[j] + 1
+    }
+    else if (data[j,i] == "NO") {
+      data$indexDispositionClinic[j] = data$indexDispositionClinic[j] + 1
+    }  
+    else if (data[j,i] == "No") {
+      data$indexDispositionClinic[j] = data$indexDispositionClinic[j] + 1
+    } 
+    else if (data[j,i] == "Sí") {
+      data$indexDispositionClinic[j] = data$indexDispositionClinic[j] + 2
+    } 
+    else if (data[j,i] == "Si") {
+      data$indexDispositionClinic[j] = data$indexDispositionClinic[j] + 2
+    } else {
+      print(data[j,i])
+    }
+  }
+}
+
+minV<-min(data$indexDispositionClinic)
+maxV<-max(data$indexDispositionClinic)
+data$indexDispositionClinic<-sapply(data$indexDispositionClinic, function(x) {
+  return (((x - minV)/(maxV-minV))*100)
+})
+
+# Disposición en utilizar la tarjeta
+data$indexDispositionCard = rep(0, nrow(data))
+head(data[,53:57])
+for (i in 53:57) {
+  for(j in 1:nrow(data)) {
+    if (is.na(data[j,i])) {
+      data$indexDispositionCard[j] = data$indexDispositionCard[j] + 0
+    }
+    else if (data[j,i] == "NS/NR") {
+      data$indexDispositionCard[j] = data$indexDispositionCard[j] + 1
+    }
+    else if (data[j,i] == "NO") {
+      data$indexDispositionCard[j] = data$indexDispositionCard[j] + 1
+    }  
+    else if (data[j,i] == "No") {
+      data$indexDispositionCard[j] = data$indexDispositionCard[j] + 1
+    } 
+    else if (data[j,i] == "Sí") {
+      data$indexDispositionCard[j] = data$indexDispositionCard[j] + 2
+    } 
+    else if (data[j,i] == "Si") {
+      data$indexDispositionCard[j] = data$indexDispositionCard[j] + 2
+    } else {
+      print(data[j,i])
+    }
+  }
+}
+
+minV<-min(data$indexDispositionCard)
+maxV<-max(data$indexDispositionCard)
+data$indexDispositionCard<-sapply(data$indexDispositionCard, function(x) {
+  return (((x - minV)/(maxV-minV))*100)
+})
+
+data<-as_tibble(data)
 data<-data %>%
   mutate(Preferencia=
            case_when(
@@ -31,23 +229,6 @@ data<-data %>%
              TRUE ~ as.character(Preferencia)
            ))
 
-## Access data
-levels_ACC = levels(data$ACC1)
-for (i in 2:9){
-  data[,i] = as.numeric(data[,i])
-}
-head(data[,2:9])
-
-
-## Confidence data
-levels_CON = levels(data$CON8)
-for (i in 10:17){
-  data[,i] = as.numeric(data[,i])
-}
-head(data[,10:17])
-
-levels_COMP = levels(data$COMP1)
-data$CALCCSS11
 ################ Preferencia a servicios médicos
 data %>% 
   count(Preferencia)  %>% 
