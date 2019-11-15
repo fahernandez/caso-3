@@ -5,13 +5,27 @@ library(tidyverse)
 library(ggplot2)
 library(extrafont) 
 library(RColorBrewer)
-
+library(magrittr)
+library(cluster)
+library(cluster.datasets)
+library(cowplot)
+library(NbClust)
+library(clValid)
+library(ggfortify)
+library(clustree)
+library(dendextend)
+library(factoextra)
+library(FactoMineR)
+library(corrplot)
+library(GGally)
+library(ggiraphExtra)
+library(kableExtra)
 
 # Read data
 #setwd("C:/Users/abrenes/Documents/Github/caso-3")
 #setwd("C:/Users/Anibal/Documents/Github/caso-3")
 data<- read.spss("./data/caso3.sav", to.data.frame=TRUE, use.value.labels = TRUE)
-attr(data, "variable.labels")
+attr(data, "variable.labels")[53:57]
 summary(data)
 names(data)
 view(data)
@@ -267,3 +281,110 @@ ggplot(sex, aes(x = reorder(Preferencia,-n), weight = n, fill = Sexo)) +
   theme(text = element_text(size=10, family="LM Roman 10")) +
   theme(plot.caption = element_text(vjust = 2)) +labs(caption = fuente)
 
+###### K Means ######
+
+tarjeta = data[data$Preferencia == "Tarjeta Exclusiva", ]
+clinica = data[data$Preferencia == "Clínica Propia", ]
+ninguno = data[data$Preferencia == "Ninguna",]
+
+
+
+#### PCA ####
+### TARJETA ###
+# disposition to card index was not included because they already prefer the card project 
+res.pca <- PCA(scale(tarjeta[,67:71]),  graph = FALSE)
+# Visualize eigenvalues/variances
+fviz_screeplot(res.pca, addlabels = TRUE, ylim = c(0, 50))
+####     ####
+
+#best number of k clusters
+res.nbclust <- NbClust(scale(tarjeta[,67:72]), distance = "euclidean",
+                       min.nc = 2, max.nc = 9, 
+                       method = "complete", index ="all")
+factoextra::fviz_nbclust(res.nbclust) + labs(x = "Número de clústeres", y = "Cantidad de índices") +theme_bw() + ggtitle("")
+ggsave("./indices_cluster.png", units = "cm", height = 8, width = 15.5)
+
+res.nbclust$All.index
+
+# disposition to card index was not included because they already prefer the card project 
+km3 = kmeans(scale(tarjeta[,67:71]), centers = 3, nstart = 100)
+km3$centers
+km3$size
+tarjeta$cluster = km3$cluster
+colnames(tarjeta[,67:71])
+centros = tarjeta %>% group_by(cluster) %>% summarize(Access = mean(indexAccess),
+                                                          Confidence = mean(indexConfidence),
+                                                          ScoreCCSS = mean(indexScoreCCSS),
+                                                          PrivateUse = mean(indexPrivateUse),
+                                                          DispositionClinic = mean(indexDispositionClinic))
+centros
+means = colMeans(tarjeta[,67:71])
+
+write.table(centros, "clipboard", sep = ",")
+write.table(means, "clipboard", sep = ",")
+
+p3 <- fviz_cluster(km3, data = scale(tarjeta[,67:71]), frame.type = "convex") +
+  theme_bw() + ggtitle("") 
+p3
+
+write.table(table(tarjeta$Ingfam, tarjeta$cluster), "clipboard", sep = ",")
+table(clinica$Ingfam)
+table(ninguno$Ingfam)
+
+write.table(table(tarjeta$residencia, tarjeta$cluster), "clipboard", sep = ",")
+table(clinica$residencia)
+table(ninguno$residencia)
+
+write.table(table(tarjeta$Frecuso, tarjeta$cluster), "clipboard", sep = ",")
+table(clinica$Frecuso)
+table(ninguno$Frecuso)
+
+
+### Clínica ###
+# disposition to card index was not included because they already prefer the card project 
+res.pca <- PCA(scale(clinica[,c(67:70,72)]),  graph = FALSE)
+# Visualize eigenvalues/variances
+fviz_screeplot(res.pca, addlabels = TRUE, ylim = c(0, 50))
+####     ####
+
+#best number of k clusters
+res.nbclust <- NbClust(scale(clinica[,c(67:70,72)]), distance = "euclidean",
+                       min.nc = 2, max.nc = 9, 
+                       method = "complete", index ="all")
+factoextra::fviz_nbclust(res.nbclust) + labs(x = "Número de clústeres", y = "Cantidad de índices") +theme_bw() + ggtitle("")
+ggsave("./indices_cluster.png", units = "cm", height = 8, width = 15.5)
+
+res.nbclust$All.index
+
+# disposition to card index was not included because they already prefer the card project 
+km3 = kmeans(scale(clinica[,c(67:70,72)]), centers = 3, nstart = 100)
+km3$centers
+km3$size
+clinica$cluster = km3$cluster
+colnames(clinica[,c(67:70,72)])
+centros = clinica %>% group_by(cluster) %>% summarize(Access = mean(indexAccess),
+                                                      Confidence = mean(indexConfidence),
+                                                      ScoreCCSS = mean(indexScoreCCSS),
+                                                      PrivateUse = mean(indexPrivateUse),
+                                                      DispositionCard = mean(indexDispositionCard))
+centros
+means = colMeans(clinica[,c(67:70,72)])
+
+write.table(centros, "clipboard", sep = ",")
+write.table(means, "clipboard", sep = ",")
+
+p3 <- fviz_cluster(km3, data = scale(clinica[,c(67:70,72)]), frame.type = "convex") +
+  theme_bw() + ggtitle("") 
+p3
+
+write.table(table(clinica$Ingfam, clinica$cluster), "clipboard", sep = ",")
+table(tarjeta$Ingfam)
+table(ninguno$Ingfam)
+
+write.table(table(clinica$residencia, clinica$cluster), "clipboard", sep = ",")
+table(tarjeta$residencia)
+table(ninguno$residencia)
+
+write.table(table(clinica$Frecuso, clinica$cluster), "clipboard", sep = ",")
+table(tarjeta$Frecuso)
+table(ninguno$Frecuso)
