@@ -372,7 +372,7 @@ means = colMeans(tarjeta[,67:71])
 write.table(centros, "clipboard", sep = ",")
 write.table(means, "clipboard", sep = ",")
 
-p3 <- fviz_cluster(km3, data = scale(tarjeta[,67:71]), frame.type = "convex") +
+p3 <- fviz_cluster(km3, geom = c("point"), data = scale(tarjeta[,67:71]), frame.type = "convex") +
   theme_bw() + ggtitle("") 
 p3
 
