@@ -31,7 +31,7 @@ names(data)
 view(data)
 
 palett<-"Dark2"
-fuente<-"Fuente: Encuesta sobre preferencia de servicios médicos, 2012"
+fuente<-"Fuente: Encuesta de opinión en asociados de una cooperativa."
 
 ################# Limpieza y transformación de data
 ## NA values van a ser convertidos a zero al ser pocos valores (< 3%)
@@ -113,7 +113,7 @@ data$indexConfidence<-sapply(data$indexConfidence, function(x) {
 
 # Calificación de la  CCSS en servicios de salud
 data$indexScoreCCSS = rep(0, nrow(data))
-head(data[,26:36])
+head(data[,26:37])
 for (i in 26:36){
   for(j in 1:nrow(data)) {
     if (is.na(data[j,i])) {
@@ -243,11 +243,31 @@ data<-data %>%
              TRUE ~ as.character(Preferencia)
            ))
 
+#### Opinión de que la coperativa tenga una clínica privada
+data %>% 
+  count(NCL1)  %>% 
+  mutate(per=n/nrow(data)*100) %>% 
+  arrange(per)
+
+#### Opinión del lanzamiento de una tarjeta para seguros de salud
+data %>% 
+  count(Tarj1)  %>% 
+  mutate(per=n/nrow(data)*100) %>% 
+  arrange(per)
+
 ################ Preferencia a servicios médicos
 data %>% 
   count(Preferencia)  %>% 
   mutate(per=n/nrow(data)*100) %>% 
   arrange(per)
+
+################# Preferencia según los índices analizados
+data %>% 
+  summarise(mean(indexAccess),mean(indexConfidence),mean(indexScoreCCSS),mean(indexPrivateUse),mean(indexDispositionClinic),mean(indexDispositionCard))
+
+data %>% 
+  group_by(Preferencia) %>% 
+  summarise(mean(indexAccess),mean(indexConfidence),mean(indexScoreCCSS),mean(indexPrivateUse),mean(indexDispositionClinic),mean(indexDispositionCard))
 
 ################# Preferencia en cuanto a tipo de servicio por zona de residencia
 data %>% 
@@ -256,7 +276,8 @@ data %>%
   arrange(per)
 
 pref<-data %>%
-  count(Preferencia, residencia)
+  count(Preferencia, residencia) %>% 
+  mutate(per=n/nrow(data)*100)
 
 ggplot(pref, aes(x = reorder(Preferencia,-n), weight = n, fill = residencia)) + 
   geom_bar() +
@@ -272,12 +293,40 @@ data %>%
   arrange(per)
 
 sex<-data %>%
-  count(Preferencia, Sexo)
+  count(Preferencia, Sexo) %>% 
+  mutate(per=n/nrow(data)*100) %>% 
+  arrange(per)
 
 ggplot(sex, aes(x = reorder(Preferencia,-n), weight = n, fill = Sexo)) + 
   geom_bar() +
   labs(x = "Preferencia de servicio médico", y = "Cantidad de agremiados") +
   scale_fill_manual(values = list(color = brewer.pal(3, palett))$color[1:2]) +
+  theme(text = element_text(size=10, family="LM Roman 10")) +
+  theme(plot.caption = element_text(vjust = 2)) +labs(caption = fuente)
+
+
+################# Preferencia en cuanto a ingreso familiar
+data %>% 
+  count(Ingfam)  %>% 
+  mutate(per=n/nrow(data)*100) %>% 
+  arrange(per)
+
+ing<-data %>%
+  count(Preferencia, Ingfam)
+
+################# Preferencia en frecuencia de uso
+data %>% 
+  count(Frecuso)  %>% 
+  mutate(per=n/nrow(data)*100) %>% 
+  arrange(per)
+
+frequso<-data %>%
+  count(Preferencia, Frecuso)
+
+ggplot(frequso, aes(x = reorder(Preferencia,-n), weight = n, fill = Frecuso)) + 
+  geom_bar() +
+  labs(x = "Preferencia de servicio médico", y = "Cantidad de agremiados") +
+  scale_fill_manual(values = list(color = brewer.pal(4, palett))$color[1:4]) +
   theme(text = element_text(size=10, family="LM Roman 10")) +
   theme(plot.caption = element_text(vjust = 2)) +labs(caption = fuente)
 
