@@ -376,6 +376,8 @@ p3 <- fviz_cluster(km3, data = scale(tarjeta[,67:71]), frame.type = "convex") +
   theme_bw() + ggtitle("") 
 p3
 
+ggsave("./cluster_tarjeta.png", units = "cm", height = 8, width = 15.5)
+
 write.table(table(tarjeta$Ingfam, tarjeta$cluster), "clipboard", sep = ",")
 table(clinica$Ingfam)
 table(ninguno$Ingfam)
@@ -422,9 +424,11 @@ means = colMeans(clinica[,c(67:70,72)])
 write.table(centros, "clipboard", sep = ",")
 write.table(means, "clipboard", sep = ",")
 
-p3 <- fviz_cluster(km3, data = scale(clinica[,c(67:70,72)]), frame.type = "convex") +
-  theme_bw() + ggtitle("") 
+p3 <- fviz_cluster(km3, geom = c("point"),data = scale(clinica[,c(67:70,72)]), frame.type = "convex") +
+  theme_bw() + ggtitle("")
 p3
+
+ggsave("./cluster_clinica.png", units = "cm", height = 8, width = 15.5)
 
 write.table(table(clinica$Ingfam, clinica$cluster), "clipboard", sep = ",")
 table(tarjeta$Ingfam)
